@@ -11,7 +11,7 @@ file = open("./french/metiers.txt", "r", errors="ignore")
 content = file.readlines()
 size = len(content)
 
-replace_1 = ["\n", "Ã©", "Ã\xa0", "ã¨", "Ã´", "Ã¨"]
+replace_1 = ["\n", "Ã©", "Ã\xa0", "ã¨", "Ã´", "Ã¨"] #replace bad stuff
 replace_2 = ["", "é", "à", "è", "ô", "è"]
 
 for line in content:
@@ -21,7 +21,7 @@ for line in content:
     french.append(words[0])
     english.append(words[1])
 
-print(french)
+#print(french)
 
 dx,dy = 800,200
 color_a = pygame.Color(200,200,200)
@@ -60,13 +60,19 @@ def scroll(letter):
 
     return r
 
-def process(inpt, word):
+def stop():
+    pygame.quit()
+    sys.exit
+
+def process(inpt, word, counter):
     inpt = inpt.lower()
     word = word.lower()
     if inpt == word:
         print("correct")
+        counter += 1
     else:
         print("it was " + word)
+    
 
 class Box():
     def __init__(self, x, y, w, h):
@@ -94,19 +100,21 @@ class Box():
 
 textbox = Box(dx/30, dy - 70, 750, 45)
 
-
+index = random.randrange(0, size - 1)
 qs_text = ""
 times = 0
+words_per_round = 5
+score = ""
+correct = 0
 
 while True:
     
     display.fill(color1)
 
-    if times > size - 1:
-        pygame.quit()
-        sys.exit()
+    if times > words_per_round - 1:
+        stop()
+        break
 
-    index = random.randrange(0, size)
     qs_text = english[index]
     ans = french[index]
     qs = font2.render(qs_text, False, color2)
@@ -116,8 +124,10 @@ while True:
     display.blit(qs, (25,20))
     for event in pygame.event.get():
         if event.type == QUIT:
-            pygame.quit()
-            sys.exit()
+            stop()
+            print(str(correct) + " / " + str(words_per_round))
+            break
+
         elif event.type == KEYDOWN:
             if textbox.active == True:
                 if event.key == pygame.K_BACKSPACE:
@@ -131,9 +141,13 @@ while True:
                     textbox.change()
 
                 elif event.key == pygame.K_RETURN:
-                    process(textbox.text, ans)
+                    process(textbox.text, ans, correct)
                     textbox.text = ""
-                    index += 1
+                    french.remove(french[index])
+                    size = len(french)
+                    english.remove(english[index])
+                    index = random.randrange(0, size - 1)
+                    times += 1
                     textbox.change()
                 
                 elif len(textbox.text) < 40:
