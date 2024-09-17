@@ -64,14 +64,13 @@ def stop():
     pygame.quit()
     sys.exit
 
-def process(inpt, word, counter):
+def process(inpt, word):
     inpt = inpt.lower()
     word = word.lower()
     if inpt == word:
-        print("correct")
-        counter += 1
+        return "correct"
     else:
-        print("it was " + word)
+        return "it was " + word
     
 
 class Box():
@@ -103,7 +102,7 @@ textbox = Box(dx/30, dy - 70, 750, 45)
 index = random.randrange(0, size - 1)
 qs_text = ""
 times = 0
-words_per_round = 5
+words_per_round = 2
 score = ""
 correct = 0
 
@@ -112,6 +111,7 @@ while True:
     display.fill(color1)
 
     if times > words_per_round - 1:
+        print(str(correct) + "/" + str(words_per_round))
         stop()
         break
 
@@ -125,7 +125,6 @@ while True:
     for event in pygame.event.get():
         if event.type == QUIT:
             stop()
-            print(str(correct) + " / " + str(words_per_round))
             break
 
         elif event.type == KEYDOWN:
@@ -141,7 +140,10 @@ while True:
                     textbox.change()
 
                 elif event.key == pygame.K_RETURN:
-                    process(textbox.text, ans, correct)
+                    print(process(textbox.text, ans))
+                    if process(textbox.text, ans) == "correct":
+                        correct += 1
+                    
                     textbox.text = ""
                     french.remove(french[index])
                     size = len(french)
